@@ -12,6 +12,14 @@ function CreateADGroup(){
 
 }
 
+function RemoveADGroup(){
+    param( [Parameter(Mandatory=$true)] $groupObject )
+
+    $name = $groupObject.name
+    Remove-ADGroup -Identity $name -Confirm:$false
+
+}
+
 
 function CreateADUser(){
 	param( [Parameter(Mandatory=$true)] $userObject)
@@ -45,6 +53,17 @@ function CreateADUser(){
         
     }
 }
+
+#Disabling password complixity
+function  WeakPasswordPolicy(){
+    secedit /export /cfg C:\Windows\Tasks\secpol.cfg
+    (GEt-Content C:\Windows\Tasks\secpol.cfg).replace("PasswordComplexity = 1", "Password Complexity = 0") | Out-File C:\Windows\Tasks\secpol.cfg
+    secedit /configure /db c:\windows\security\local.sdb /cfg C:\Windows\Tasks\secpol.cfg /areas SECURITYPOLICY 
+    rm -force C:\Windows\Tasks\secpol.cfg -confirm: $false
+    
+}
+
+WeakPasswordPolicy
 
    
 $Json = ( Get-Content $Jsonfile | ConvertFrom-Json)
